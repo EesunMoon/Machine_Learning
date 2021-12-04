@@ -1,0 +1,671 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "administrative-mambo",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:38:57.992153Z",
+     "iopub.status.busy": "2021-04-12T11:38:57.990852Z",
+     "iopub.status.idle": "2021-04-12T11:38:57.999863Z",
+     "shell.execute_reply": "2021-04-12T11:38:57.999171Z"
+    },
+    "papermill": {
+     "duration": 0.02351,
+     "end_time": "2021-04-12T11:38:58.000039",
+     "exception": false,
+     "start_time": "2021-04-12T11:38:57.976529",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/kaggle/input/2021-ml-quiz1-p3b/train.csv\n",
+      "/kaggle/input/2021-ml-quiz1-p3b/test.csv\n",
+      "/kaggle/input/2021-ml-quiz1-p3b/sample_submit.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "accomplished-savannah",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:38:58.029516Z",
+     "iopub.status.busy": "2021-04-12T11:38:58.028260Z",
+     "iopub.status.idle": "2021-04-12T11:38:58.332367Z",
+     "shell.execute_reply": "2021-04-12T11:38:58.331676Z"
+    },
+    "papermill": {
+     "duration": 0.320496,
+     "end_time": "2021-04-12T11:38:58.332572",
+     "exception": false,
+     "start_time": "2021-04-12T11:38:58.012076",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "           0          1          2          3         4         5          6  \\\n",
+      "0  13.934082  -3.077109 -13.515020  -0.844135  3.097764  0.154635   5.615488   \n",
+      "1  18.757893  -0.304454   1.757282  10.702372  5.530047 -9.571358   9.296905   \n",
+      "2  -8.063476  -3.259291 -16.577340  -5.497738 -6.616893  4.916349 -10.537728   \n",
+      "3   3.128894  16.911400 -10.434631   1.177685  3.228336 -1.875124   8.374058   \n",
+      "4 -15.744248  -1.022630   0.004898   6.656867 -2.534440 -8.309071  -1.379099   \n",
+      "\n",
+      "          7         8         9  ...        55        56        57        58  \\\n",
+      "0 -8.032149  2.776431  1.469208  ...  0.474123 -1.481585 -2.168011 -0.472213   \n",
+      "1 -2.858612  0.027188  3.768508  ...  1.776686  0.905478 -1.641744  0.734237   \n",
+      "2  5.398572 -1.091936 -2.561823  ... -0.962800 -0.409117  0.497765  1.440391   \n",
+      "3 -0.885263  5.068379 -6.400661  ...  0.775439  3.694294  0.438467 -0.148669   \n",
+      "4  4.352854  8.783724  2.650707  ... -1.151704  0.354604  0.752026 -1.192524   \n",
+      "\n",
+      "         59        60        61        62        63  Category  \n",
+      "0  1.542271  0.356707  0.530720  0.171594 -0.322960      edge  \n",
+      "1  1.231368  0.179600  1.700099 -0.001509  1.077432      edge  \n",
+      "2 -0.513098 -0.477530  2.724299 -0.663966 -1.755266      edge  \n",
+      "3  0.227370  3.004657  0.440074 -0.087064  1.925870      edge  \n",
+      "4 -0.910384  1.549595 -2.284629  0.672590 -0.606422      edge  \n",
+      "\n",
+      "[5 rows x 65 columns]\n",
+      "           0          1          2          3          4          5         6  \\\n",
+      "0 -14.238203 -15.670372 -12.266742   8.772731  -1.062115  12.313971  5.447355   \n",
+      "1 -11.216002  15.657775  -1.080561  10.588281   1.698980   0.221580  0.651915   \n",
+      "2  19.227375 -13.398582   6.344983   0.673839   2.338009  -2.120843  5.539773   \n",
+      "3 -12.524920   9.557715  15.283616   1.440119   1.804742  -3.472384  2.337877   \n",
+      "4  15.702551   9.524783 -16.462688  -5.936708 -11.013749   2.756393 -7.259588   \n",
+      "\n",
+      "           7         8         9  ...        54        55        56        57  \\\n",
+      "0 -10.486055 -1.319069  1.412028  ... -1.526661 -0.031426 -0.351120  0.926840   \n",
+      "1   2.617677 -7.410492  2.398025  ... -2.074036  0.779153  0.752769 -1.249239   \n",
+      "2   7.779192  1.380348 -1.728367  ...  0.113740 -0.441069  1.053713 -1.845533   \n",
+      "3  -2.322144  1.910832 -4.620938  ... -0.671643  0.078542  0.172880 -1.075137   \n",
+      "4  -3.768883 -3.980812  3.195737  ... -0.195311  1.171689  0.563732 -0.960047   \n",
+      "\n",
+      "         58        59        60        61        62        63  \n",
+      "0 -1.687954 -1.666352 -1.295853 -0.757767 -1.793229 -1.617771  \n",
+      "1 -0.982266  0.347240 -1.616450  0.859141 -0.279321  0.024584  \n",
+      "2 -1.311030 -1.594242 -0.743166 -0.533958  0.417801 -1.707941  \n",
+      "3  0.725919 -1.553811 -0.787675  0.873334 -1.319784 -0.432190  \n",
+      "4 -0.908781  0.250107 -0.578281  0.579105 -0.327169  0.806069  \n",
+      "\n",
+      "[5 rows x 64 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "train_data = pd.read_csv('/kaggle/input/2021-ml-quiz1-p3b/train.csv')\n",
+    "test_data = pd.read_csv('/kaggle/input/2021-ml-quiz1-p3b/test.csv')\n",
+    "submit = pd.read_csv('/kaggle/input/2021-ml-quiz1-p3b/sample_submit.csv')\n",
+    "\n",
+    "print(train_data.head())\n",
+    "print(test_data.head())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "informative-stroke",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:38:58.377183Z",
+     "iopub.status.busy": "2021-04-12T11:38:58.376113Z",
+     "iopub.status.idle": "2021-04-12T11:38:58.380556Z",
+     "shell.execute_reply": "2021-04-12T11:38:58.379895Z"
+    },
+    "papermill": {
+     "duration": 0.036709,
+     "end_time": "2021-04-12T11:38:58.380709",
+     "exception": false,
+     "start_time": "2021-04-12T11:38:58.344000",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "           0          1          2          3         4         5          6  \\\n",
+      "0  13.934082  -3.077109 -13.515020  -0.844135  3.097764  0.154635   5.615488   \n",
+      "1  18.757893  -0.304454   1.757282  10.702372  5.530047 -9.571358   9.296905   \n",
+      "2  -8.063476  -3.259291 -16.577340  -5.497738 -6.616893  4.916349 -10.537728   \n",
+      "3   3.128894  16.911400 -10.434631   1.177685  3.228336 -1.875124   8.374058   \n",
+      "4 -15.744248  -1.022630   0.004898   6.656867 -2.534440 -8.309071  -1.379099   \n",
+      "\n",
+      "          7         8         9  ...        54        55        56        57  \\\n",
+      "0 -8.032149  2.776431  1.469208  ... -0.834850  0.474123 -1.481585 -2.168011   \n",
+      "1 -2.858612  0.027188  3.768508  ...  0.941480  1.776686  0.905478 -1.641744   \n",
+      "2  5.398572 -1.091936 -2.561823  ...  1.976522 -0.962800 -0.409117  0.497765   \n",
+      "3 -0.885263  5.068379 -6.400661  ...  1.624901  0.775439  3.694294  0.438467   \n",
+      "4  4.352854  8.783724  2.650707  ...  0.231652 -1.151704  0.354604  0.752026   \n",
+      "\n",
+      "         58        59        60        61        62        63  \n",
+      "0 -0.472213  1.542271  0.356707  0.530720  0.171594 -0.322960  \n",
+      "1  0.734237  1.231368  0.179600  1.700099 -0.001509  1.077432  \n",
+      "2  1.440391 -0.513098 -0.477530  2.724299 -0.663966 -1.755266  \n",
+      "3 -0.148669  0.227370  3.004657  0.440074 -0.087064  1.925870  \n",
+      "4 -1.192524 -0.910384  1.549595 -2.284629  0.672590 -0.606422  \n",
+      "\n",
+      "[5 rows x 64 columns]\n",
+      "['edge' 'smooth' 'spiral']\n"
+     ]
+    }
+   ],
+   "source": [
+    "x_data = train_data.drop('Category', axis=1)\n",
+    "y_data = train_data['Category']\n",
+    "\n",
+    "print(x_data.head())\n",
+    "print(y_data.unique())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "ordinary-wisdom",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:38:58.409776Z",
+     "iopub.status.busy": "2021-04-12T11:38:58.408810Z",
+     "iopub.status.idle": "2021-04-12T11:38:59.696005Z",
+     "shell.execute_reply": "2021-04-12T11:38:59.695288Z"
+    },
+    "papermill": {
+     "duration": 1.303985,
+     "end_time": "2021-04-12T11:38:59.696158",
+     "exception": false,
+     "start_time": "2021-04-12T11:38:58.392173",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0 0 0 ... 2 2 2]\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.preprocessing import LabelEncoder\n",
+    "le = LabelEncoder()\n",
+    "y_data_le = le.fit_transform(y_data)\n",
+    "print(y_data_le)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "herbal-afternoon",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:38:59.723423Z",
+     "iopub.status.busy": "2021-04-12T11:38:59.722801Z",
+     "iopub.status.idle": "2021-04-12T11:38:59.830182Z",
+     "shell.execute_reply": "2021-04-12T11:38:59.831459Z"
+    },
+    "papermill": {
+     "duration": 0.12355,
+     "end_time": "2021-04-12T11:38:59.831742",
+     "exception": false,
+     "start_time": "2021-04-12T11:38:59.708192",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(4200, 64)\n",
+      "(1800, 64)\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.model_selection import train_test_split\n",
+    "x_train, x_val, y_train, y_val = train_test_split(x_data, y_data, test_size = 0.3, random_state=123, stratify = y_data)\n",
+    "print(x_train.shape)\n",
+    "print(x_val.shape)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "abroad-republic",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:38:59.863704Z",
+     "iopub.status.busy": "2021-04-12T11:38:59.862990Z",
+     "iopub.status.idle": "2021-04-12T11:39:00.417673Z",
+     "shell.execute_reply": "2021-04-12T11:39:00.418250Z"
+    },
+    "papermill": {
+     "duration": 0.573313,
+     "end_time": "2021-04-12T11:39:00.418451",
+     "exception": false,
+     "start_time": "2021-04-12T11:38:59.845138",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.7972222222222223\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.linear_model import LogisticRegression\n",
+    "\n",
+    "lgt = LogisticRegression(solver='sag') \n",
+    "lgt.fit(x_train, y_train)\n",
+    "print(lgt.score(x_val, y_val))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "absent-president",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:39:00.477164Z",
+     "iopub.status.busy": "2021-04-12T11:39:00.475930Z",
+     "iopub.status.idle": "2021-04-12T11:39:00.729487Z",
+     "shell.execute_reply": "2021-04-12T11:39:00.730432Z"
+    },
+    "papermill": {
+     "duration": 0.290857,
+     "end_time": "2021-04-12T11:39:00.730759",
+     "exception": false,
+     "start_time": "2021-04-12T11:39:00.439902",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.7977777777777778\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.preprocessing import StandardScaler\n",
+    "scaler1 = StandardScaler()\n",
+    "x_train_std = scaler1.fit_transform(x_train)\n",
+    "x_val_std = scaler1.fit_transform(x_val)\n",
+    "lgt.fit(x_train_std, y_train)\n",
+    "print(lgt.score(x_val_std, y_val))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "dimensional-article",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:39:00.794916Z",
+     "iopub.status.busy": "2021-04-12T11:39:00.793740Z",
+     "iopub.status.idle": "2021-04-12T11:39:01.079873Z",
+     "shell.execute_reply": "2021-04-12T11:39:01.080932Z"
+    },
+    "papermill": {
+     "duration": 0.325273,
+     "end_time": "2021-04-12T11:39:01.081215",
+     "exception": false,
+     "start_time": "2021-04-12T11:39:00.755942",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.7266666666666667\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.preprocessing import MinMaxScaler\n",
+    "scaler2 = MinMaxScaler()\n",
+    "x_train_nm = scaler2.fit_transform(x_train)\n",
+    "x_val_nm= scaler2.fit_transform(x_val)\n",
+    "lgt.fit(x_train_nm, y_train)\n",
+    "print(lgt.score(x_val_nm, y_val))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "informational-bobby",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:39:01.148824Z",
+     "iopub.status.busy": "2021-04-12T11:39:01.147570Z",
+     "iopub.status.idle": "2021-04-12T11:39:01.412687Z",
+     "shell.execute_reply": "2021-04-12T11:39:01.413781Z"
+    },
+    "papermill": {
+     "duration": 0.307749,
+     "end_time": "2021-04-12T11:39:01.414082",
+     "exception": false,
+     "start_time": "2021-04-12T11:39:01.106333",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0 1 2 ... 0 2 1]\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.linear_model import LogisticRegression\n",
+    "\n",
+    "x_data_std = scaler1.fit_transform(x_data)\n",
+    "test_data_std = scaler1.fit_transform(test_data)\n",
+    "lgt = LogisticRegression(solver='sag') \n",
+    "lgt.fit(x_data_std, y_data_le)\n",
+    "pred = lgt.predict(test_data_std)\n",
+    "\n",
+    "print(pred)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "arbitrary-mambo",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:39:01.482138Z",
+     "iopub.status.busy": "2021-04-12T11:39:01.481003Z",
+     "iopub.status.idle": "2021-04-12T11:39:01.485680Z",
+     "shell.execute_reply": "2021-04-12T11:39:01.487219Z"
+    },
+    "papermill": {
+     "duration": 0.047844,
+     "end_time": "2021-04-12T11:39:01.487614",
+     "exception": false,
+     "start_time": "2021-04-12T11:39:01.439770",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array(['edge', 'smooth', 'spiral', ..., 'edge', 'spiral', 'smooth'],\n",
+       "      dtype=object)"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "pred_origin = le.inverse_transform(pred)\n",
+    "pred_origin"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "imposed-completion",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:39:01.547707Z",
+     "iopub.status.busy": "2021-04-12T11:39:01.547028Z",
+     "iopub.status.idle": "2021-04-12T11:39:01.556153Z",
+     "shell.execute_reply": "2021-04-12T11:39:01.556716Z"
+    },
+    "papermill": {
+     "duration": 0.040401,
+     "end_time": "2021-04-12T11:39:01.556907",
+     "exception": false,
+     "start_time": "2021-04-12T11:39:01.516506",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Id</th>\n",
+       "      <th>Category</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0</td>\n",
+       "      <td>edge</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>smooth</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>2</td>\n",
+       "      <td>spiral</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>3</td>\n",
+       "      <td>spiral</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>4</td>\n",
+       "      <td>edge</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1495</th>\n",
+       "      <td>1495</td>\n",
+       "      <td>spiral</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1496</th>\n",
+       "      <td>1496</td>\n",
+       "      <td>spiral</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1497</th>\n",
+       "      <td>1497</td>\n",
+       "      <td>edge</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1498</th>\n",
+       "      <td>1498</td>\n",
+       "      <td>spiral</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1499</th>\n",
+       "      <td>1499</td>\n",
+       "      <td>smooth</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>1500 rows × 2 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "        Id Category\n",
+       "0        0     edge\n",
+       "1        1   smooth\n",
+       "2        2   spiral\n",
+       "3        3   spiral\n",
+       "4        4     edge\n",
+       "...    ...      ...\n",
+       "1495  1495   spiral\n",
+       "1496  1496   spiral\n",
+       "1497  1497     edge\n",
+       "1498  1498   spiral\n",
+       "1499  1499   smooth\n",
+       "\n",
+       "[1500 rows x 2 columns]"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "submit['Category'] = pred_origin\n",
+    "submit"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "organic-instruction",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-04-12T11:39:01.594611Z",
+     "iopub.status.busy": "2021-04-12T11:39:01.593450Z",
+     "iopub.status.idle": "2021-04-12T11:39:01.607930Z",
+     "shell.execute_reply": "2021-04-12T11:39:01.607232Z"
+    },
+    "papermill": {
+     "duration": 0.034708,
+     "end_time": "2021-04-12T11:39:01.608096",
+     "exception": false,
+     "start_time": "2021-04-12T11:39:01.573388",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "submit.to_csv('submit.csv', header=True, index = False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "tired-watson",
+   "metadata": {
+    "papermill": {
+     "duration": 0.01509,
+     "end_time": "2021-04-12T11:39:01.639089",
+     "exception": false,
+     "start_time": "2021-04-12T11:39:01.623999",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.9"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 11.480207,
+   "end_time": "2021-04-12T11:39:02.366474",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2021-04-12T11:38:50.886267",
+   "version": "2.3.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
