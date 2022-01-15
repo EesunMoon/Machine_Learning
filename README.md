@@ -1,7 +1,7 @@
 # Machine_Learning
 [2021-1] 머신러닝
 - 실습 : [kaggle](https://www.kaggle.com) 이용
-- 
+
 ## 실습 문제
 | 주차 | 실습 | 
 |:---:|:---:|
