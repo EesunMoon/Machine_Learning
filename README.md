@@ -11,8 +11,5 @@
 | 4 | [Decision Tree](https://github.com/MoonEeSun/Machine_Learning/tree/master/09%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1_DT)  |
 | 5 | [SVM](https://github.com/MoonEeSun/Machine_Learning/tree/master/10%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1_SVM)  |
 | 6 | [KMeans](https://github.com/MoonEeSun/Machine_Learning/tree/master/11%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1_KMeans)  |
-| 7 | [판별분석]()  |
-| 9 | [Decision Tree]()  |
-| 10 | [SVM]()  |
-| 11 | [KMeans]()  |
+
 
