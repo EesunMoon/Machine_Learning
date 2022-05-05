@@ -12,4 +12,5 @@
 | 5 | [SVM](https://github.com/MoonEeSun/Machine_Learning/tree/master/10%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1_SVM)  |
 | 6 | [KMeans](https://github.com/MoonEeSun/Machine_Learning/tree/master/11%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1_KMeans)  |
 
-
+## Term project
+[Term_project](https://github.com/MoonEeSun/Machine_Learning/tree/master/Term_Project)
