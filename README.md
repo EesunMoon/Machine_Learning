@@ -1,9 +1,8 @@
 # Machine_Learning
-[2021-1] 머신러닝
-- 실습 : [kaggle](https://www.kaggle.com) 이용
+- spring, 2021
+- [kaggle](https://www.kaggle.com)
 
-## 실습 문제
-| 주차 | 실습 | 
+| week | kaggle link | 
 |:---:|:---:|
 | 1 | [KNN](https://github.com/MoonEeSun/Machine_Learning/tree/master/05%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1_KNN)  |
 | 2 | [Logistic Regression](https://github.com/MoonEeSun/Machine_Learning/tree/master/06%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1_logistic_regression)  |
@@ -13,5 +12,4 @@
 | 6 | [KMeans](https://github.com/MoonEeSun/Machine_Learning/tree/master/11%E1%84%8C%E1%85%AE%E1%84%8E%E1%85%A1_KMeans)  |
 
 ## Term project
-- 5문항
 [Term_project](https://github.com/MoonEeSun/Machine_Learning/tree/master/Term_Project)
