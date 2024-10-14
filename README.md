@@ -1,5 +1,5 @@
 # Machine_Learning
-- spring, 2021
+- Spring 2021
 - [kaggle](https://www.kaggle.com)
 
 | week | kaggle link | 
